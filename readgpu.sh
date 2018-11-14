@@ -17,5 +17,6 @@ done
 readgpu & # Use & to wait for the command to return
 writedat &
 sleep 1
-gnuplot plotgpu.gnu
+# Suppress the warnings and errors from gnuplot
+gnuplot plotgpu.gnu 2>/dev/null
 
