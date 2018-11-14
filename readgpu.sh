@@ -2,18 +2,38 @@
 rm plot.dat
 rm alldata.dat
 
+# Parse the argument and make the header
+prog=$1
+echo $prog
+header="Total $prog"
+echo $header>alldata.dat
+
+
 readgpu(){
-while true; do 
-nvidia-smi | grep /*MiB | head -1 | cut -d "|" -f 3|cut -d "M" -f 1 | cut -f-1| xargs >> alldata.dat
+while true; do
+       # Read the total memory use
+	towrite=$(nvidia-smi | grep /*MiB | head -1 | cut -d "|" -f 3|cut -d "M" -f 1 | cut -f-1| xargs)
+	# Read the memory use of the specified program
+       p=$(nvidia-smi | grep -i $prog | head -1 | cut -c 69-74|xargs)
+       towrite="$towrite $p"
+	echo $towrite>> alldata.dat
 sleep 1;
 done
 }
+
+
 writedat(){
 while true; do
-tail -n 100 alldata.dat > plot.dat
+# Write the headers
+towrite2=$(head -n 1 alldata.dat)
+# Write the last 100 entries
+towrite2="$towrite2\n$(tail -n +2 alldata.dat | tail -n 100)"
+echo -e "$towrite2" > plot.dat
 sleep 1;
 done
 }
+
+
 readgpu & # Use & to wait for the command to return
 writedat &
 sleep 1
