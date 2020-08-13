@@ -6,13 +6,16 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import glob
 
-f = '/home/ycan/miscscripts/gpumon/alldata.dat'
+f = '/home/ycan/miscscripts/gpumon/alldata_2018-11-20+*'
 lines = []
 t = []
 m = []
 
-with open(f, 'r') as file:
+fname = glob.glob(f)[0]
+
+with open(fname, 'r') as file:
     lines = file.readlines()
 
 labels = lines[0]  # First line contains headers
@@ -26,10 +29,18 @@ for i, line in enumerate(lines):
     if i == 0: continue
     l = line.split()
     for col in range(ncol):
-        data[i-1, col] = int(l[col])
+        try:
+            data[i-1, col] = int(l[col])
+        except IndexError:
+            data[i-1, col] = 0
 
-plt.plot(data)
+t = np.arange(0, data.shape[0])/60
+plt.plot(t, data)
 plt.legend(labels)
-plt.xlabel('Time [s]')
+plt.xlabel('Time [min]')
 plt.ylabel('Memory use [MiB]')
+plt.show()
+
+
+plt.plot(t, -np.diff(data))
 plt.show()
